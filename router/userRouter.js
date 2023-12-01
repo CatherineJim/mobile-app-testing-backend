@@ -8,13 +8,14 @@ let {
 } = require("./../controller/authController");
 
 let router = express.Router();
+let cors = require("cors");
 
-router.post("/signup", signUp);
-router.post("/signin", signin);
+router.post("/signup", signUp, cors({ origin: "*" }));
+router.post("/signin", signin, cors({ origin: "*" }));
 
-// Protect all routes after this (Only-Admin) middleware
-router.use(protect);
-router.use(restrictTo("admin"));
-router.route("/").get(getAllUser);
+// // Protect all routes after this (Only-Admin) middleware
+// router.use(protect);
+// router.use(restrictTo("admin"));
+// router.route("/").get(getAllUser);
 
 module.exports = router;
