@@ -1,7 +1,8 @@
 const catchAsync = require("../util/catchAsync");
 const AppError = require("../util/appError");
-const sendEmail = require("../util/email");
 const App = require("./../model/appModel");
+const btoa = require("btoa");
+const { default: axios } = require("axios");
 
 // Create a new app
 exports.createApp = catchAsync(async (req, res, next) => {
@@ -19,6 +20,54 @@ exports.createApp = catchAsync(async (req, res, next) => {
     return next(new AppError("There's a problem creating the app", 500));
   }
 });
+
+// Controller function to create an app
+exports.uploadApp = async (req, res) => {
+  const { fileUrl, platform } = req.body;
+  const apiToken = process.env.APPETIZE_API_TOKEN; // Replace with your actual API token
+
+  const options = {
+    url: "https://api.appetize.io/v1/apps",
+    json: {
+      url: fileUrl,
+      platform: platform,
+    },
+    headers: {
+      Authorization: "Basic " + btoa(apiToken + ":"),
+    },
+  };
+
+  axios.post(options, async (err, response, body) => {
+    if (err) {
+      // Connection error
+      console.log("Error", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    } else if (response.statusCode !== 200) {
+      // API returned error
+      console.log("API error", body);
+      return res
+        .status(response.statusCode)
+        .json({ error: "API Error", details: body });
+    } else {
+      // Success - Save the app details to your database (Assuming Mongoose for MongoDB)
+      try {
+        const appDetails = {
+          name: body.name,
+          platform: body.platform,
+        };
+        res.status(201).json({
+          status: "ok",
+          data: {
+            app: appDetails,
+          },
+        });
+      } catch (saveError) {
+        console.error("Error saving app to the database", saveError);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  });
+};
 
 // Get all apps
 exports.getAllApps = catchAsync(async (req, res, next) => {

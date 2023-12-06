@@ -50,12 +50,16 @@ exports.signUp = catchAsync(async (req, res, next) => {
 });
 
 exports.signUp = catchAsync(async (req, res, next) => {
+  const { role } = req.body;
   const createUser = await User.create({
     email: req.body.email,
-    username: req.body.username,
+    fullName: req.body.fullName,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    phone: req.body.phone,
+    domain: role === "developer" ? req.body.domain : null,
+    companyName: role === "developer" ? req.body.companyName : null,
+    role: req.body.role,
+    uid: req.body.uid,
   });
 
   try {

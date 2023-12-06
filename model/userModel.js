@@ -23,11 +23,24 @@ let userSchema = new mongoose.Schema({
     },
     message: "Passwords do not match",
   },
-  phone: {
+  role: {
     type: String,
-    required: [true, "please provide your phone number"],
+    required: [true, "Role not specified"],
   },
-  username: {
+  companyName: {
+    type: String,
+  },
+  domain: {
+    type: String,
+  },
+  photoUrl: {
+    type: String,
+  },
+  uid: {
+    type: String,
+    required: [true, "Unique ID not attached"],
+  },
+  fullName: {
     type: String,
     required: [true, "please provide your name"],
   },
