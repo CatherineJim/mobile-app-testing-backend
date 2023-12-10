@@ -67,7 +67,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
     await sendEmail({
       email: createUser.email,
       subject: "Sign-Up Notification",
-      message: `Welcome to Trike, ${createUser.username}!!!`,
+      message: `Welcome to BETA APP, ${createUser.fullName}!!!`,
     });
 
     // response data
@@ -103,7 +103,7 @@ exports.signin = catchAsync(async (req, res, next) => {
     await sendEmail({
       email: user.email,
       subject: "LogIn Notification",
-      message: `Login successful, ${user.username}!!!`,
+      message: `Login successful, ${user.fullName}!!!`,
     });
   } catch (error) {
     console.log("====================================");
@@ -123,6 +123,31 @@ exports.getAllUser = catchAsync(async (req, res, next) => {
       users,
     },
   });
+});
+
+// Get one app by ID
+exports.getOneUser = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findOne({ uid: id });
+
+    if (!user) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "User does not exist",
+      });
+    }
+
+    res.status(200).json({
+      status: "ok",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 // Restrict user route

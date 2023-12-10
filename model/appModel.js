@@ -8,7 +8,11 @@ const appSchema = new mongoose.Schema({
   description: { type: String, required: true },
 
   // User who submitted the app for testing
-  developer: { type: String, require: true },
+  developer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   appUrl: { type: String, require: true },
   device: { type: String, require: true },
 

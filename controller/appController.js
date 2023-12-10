@@ -23,14 +23,14 @@ exports.createApp = catchAsync(async (req, res, next) => {
 
 // Controller function to create an app
 exports.uploadApp = async (req, res) => {
-  const { fileUrl, platform } = req.body;
+  const { url, platform } = req.body;
   const apiToken = process.env.APPETIZE_API_TOKEN; // Replace with your actual API token
 
   const options = {
     url: "https://api.appetize.io/v1/apps",
     json: {
-      url: fileUrl,
-      platform: platform,
+      url,
+      platform,
     },
     headers: {
       Authorization: "Basic " + btoa(apiToken + ":"),
@@ -51,14 +51,10 @@ exports.uploadApp = async (req, res) => {
     } else {
       // Success - Save the app details to your database (Assuming Mongoose for MongoDB)
       try {
-        const appDetails = {
-          name: body.name,
-          platform: body.platform,
-        };
         res.status(201).json({
           status: "ok",
           data: {
-            app: appDetails,
+            app: body,
           },
         });
       } catch (saveError) {
@@ -98,6 +94,30 @@ exports.getAppById = catchAsync(async (req, res, next) => {
       status: "ok",
       data: {
         app,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Get one app by ID
+exports.getDeveloperApps = catchAsync(async (req, res, next) => {
+  try {
+    const apps = await App.find({ developer: req.params.id });
+
+    if (!apps) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "User does not exist",
+      });
+    }
+
+    res.status(200).json({
+      status: "ok",
+      data: {
+        apps,
       },
     });
   } catch (error) {
